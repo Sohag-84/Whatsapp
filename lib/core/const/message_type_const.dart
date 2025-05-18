@@ -1,7 +1,4 @@
-
-
 class MessageTypeConst {
-
   static const String textMessage = "textMessage";
   static const String fileMessage = "fileMessage";
   static const String emojiMessage = "emojiMessage";

@@ -1,10 +1,4 @@
-
-
 class FirebaseCollectionConst {
-
-
-
-
   // Users
   static const String users = "users";
 

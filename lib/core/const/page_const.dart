@@ -1,7 +1,4 @@
-
-
 class PageConst {
-
   // * Auth Const
   static const String welcomePage = "/";
   static const String otpPage = "otpPage";
@@ -29,7 +26,4 @@ class PageConst {
 
   // * Edit Profile Page
   static const String editProfilePage = "editProfilePage";
-
-
-
 }
