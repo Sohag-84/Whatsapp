@@ -16,6 +16,11 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
+    _tabController!.addListener(() {
+      setState(() {
+        currentTabIndex = _tabController!.index;
+      });
+    });
     super.initState();
   }
 
@@ -90,6 +95,9 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
+      floatingActionButton: switchFloatingActionButtonOnTabIndex(
+        currentTabIndex,
+      ),
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -99,5 +107,37 @@ class _HomePageState extends State<HomePage>
         ],
       ),
     );
+  }
+
+  switchFloatingActionButtonOnTabIndex(int index) {
+    switch (index) {
+      case 0:
+        return FloatingActionButton(
+          backgroundColor: tabColor,
+          onPressed: () {},
+          child: const Icon(Icons.message, color: Colors.white),
+        );
+
+      case 1:
+        return FloatingActionButton(
+          backgroundColor: tabColor,
+          onPressed: () {},
+          child: const Icon(Icons.camera_alt, color: Colors.white),
+        );
+
+      case 2:
+        return FloatingActionButton(
+          backgroundColor: tabColor,
+          onPressed: () {},
+          child: const Icon(Icons.add_call, color: Colors.white),
+        );
+
+      default:
+        return FloatingActionButton(
+          backgroundColor: tabColor,
+          onPressed: () {},
+          child: const Icon(Icons.message, color: Colors.white),
+        );
+    }
   }
 }
