@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:country_pickers/country.dart';
 import 'package:country_pickers/country_pickers.dart';
+import 'package:whatsapp/features/user/presentation/pages/otp_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -60,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
                     title: _buildDialogItem(_selectedFilteredDialogCountry),
                   ),
                   Row(
-                    children: <Widget>[
+                    children: [
                       Container(
                         decoration: const BoxDecoration(
                           border: Border(
@@ -97,7 +98,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OtpPage()),
+                );
+              },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 width: 120,
