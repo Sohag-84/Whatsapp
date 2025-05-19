@@ -94,9 +94,10 @@ class _InitialProfileSubmitPageState extends State<InitialProfileSubmitPage> {
             const SizedBox(height: 20),
             GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
+                  (context) => false,
                 );
               },
               child: Container(
