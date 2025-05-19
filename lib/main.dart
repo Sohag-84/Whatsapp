@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whatsapp/core/splash/splash_screen.dart';
+import 'package:whatsapp/features/splash/splash_screen.dart';
 import 'package:whatsapp/core/theme/style.dart';
 
 void main() {
