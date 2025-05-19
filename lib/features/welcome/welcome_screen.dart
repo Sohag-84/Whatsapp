@@ -15,7 +15,7 @@ class WelcomePage extends StatelessWidget {
           children: [
             const Center(
               child: Text(
-                "Welcome to WhatsApp Clone",
+                "Welcome to WhatsApp",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
