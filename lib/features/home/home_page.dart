@@ -47,29 +47,27 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         actions: [
-          Row(
-            children: [
-              const Icon(Icons.camera_alt_outlined, color: greyColor, size: 28),
-              const SizedBox(width: 25),
-              const Icon(Icons.search, color: greyColor, size: 28),
-              const SizedBox(width: 10),
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: greyColor, size: 28),
-                color: appBarColor,
-                iconSize: 28,
-                onSelected: (value) {},
-                itemBuilder:
-                    (context) => <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                        value: "Settings",
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: const Text('Settings'),
-                        ),
-                      ),
-                    ],
-              ),
-            ],
+          const Icon(Icons.camera_alt_outlined, color: greyColor, size: 28),
+          const SizedBox(width: 25),
+          const Icon(Icons.search, color: greyColor, size: 28),
+          const SizedBox(width: 10),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: greyColor, size: 28),
+            color: appBarColor,
+            iconSize: 28,
+            onSelected: (value) {},
+            itemBuilder:
+                (context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: "Settings",
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, PageConst.settingsPage);
+                      },
+                      child: const Text('Settings'),
+                    ),
+                  ),
+                ],
           ),
         ],
         bottom: TabBar(
