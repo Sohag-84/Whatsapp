@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whatsapp/core/const/page_const.dart';
 import 'package:whatsapp/core/global/date/date_formats.dart';
 import 'package:whatsapp/core/global/widgets/profile_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
@@ -64,6 +65,16 @@ class _StatusPageState extends State<StatusPage> {
                     ],
                   ),
                 ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, PageConst.myStatusPage);
+                  },
+                  child: Icon(
+                    Icons.more_horiz,
+                    color: greyColor.withValues(alpha: .5),
+                  ),
+                ),
+                const SizedBox(width: 10),
               ],
             ),
             const SizedBox(height: 10),

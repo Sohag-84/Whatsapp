@@ -40,12 +40,14 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         title: const Text(
           "WhatsApp",
+
           style: TextStyle(
             fontSize: 20,
             color: greyColor,
             fontWeight: FontWeight.w600,
           ),
         ),
+        centerTitle: false,
         actions: [
           const Icon(Icons.camera_alt_outlined, color: greyColor, size: 28),
           const SizedBox(width: 25),

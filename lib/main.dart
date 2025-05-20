@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: backgroundColor,
         dialogTheme: DialogTheme(backgroundColor: appBarColor),
-        appBarTheme: AppBarTheme(color: appBarColor),
+        appBarTheme: AppBarTheme(color: appBarColor, centerTitle: true),
       ),
       initialRoute: "/",
       onGenerateRoute: OnGenerateRoute.route,
