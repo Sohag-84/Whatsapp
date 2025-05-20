@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/call/presentation/pages/call_history_page.dart';
 import 'package:whatsapp/features/chat/presentation/pages/chat_page.dart';
+import 'package:whatsapp/features/home/contact_page.dart';
 import 'package:whatsapp/features/status/presentation/pages/status_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -113,7 +114,12 @@ class _HomePageState extends State<HomePage>
       case 0:
         return FloatingActionButton(
           backgroundColor: tabColor,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ContactPage()),
+            );
+          },
           child: const Icon(Icons.message, color: Colors.white),
         );
 

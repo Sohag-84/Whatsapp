@@ -97,7 +97,7 @@ class _InitialProfileSubmitPageState extends State<InitialProfileSubmitPage> {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
-                  (context) => false,
+                  (route) => false,
                 );
               },
               child: Container(
