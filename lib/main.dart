@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp/features/splash/splash_screen.dart';
 import 'package:whatsapp/core/theme/style.dart';
+import 'package:whatsapp/routes/on_generate_route.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +20,9 @@ class MyApp extends StatelessWidget {
         dialogTheme: DialogTheme(backgroundColor: appBarColor),
         appBarTheme: AppBarTheme(color: appBarColor),
       ),
-      home: const SplashScreen(),
+      initialRoute: "/",
+      onGenerateRoute: OnGenerateRoute.route,
+      routes: {"/": (context) => SplashScreen()},
     );
   }
 }
