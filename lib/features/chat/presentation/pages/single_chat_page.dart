@@ -14,6 +14,7 @@ class SingleChatPage extends StatefulWidget {
 class _SingleChatPageState extends State<SingleChatPage> {
   final _textMessageController = TextEditingController();
   bool isDisplaySendButton = false;
+  bool isShowAttachWindow = false;
 
   @override
   void dispose() {
@@ -48,139 +49,255 @@ class _SingleChatPageState extends State<SingleChatPage> {
           const SizedBox(width: 15),
         ],
       ),
-      body: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: 0,
-            child: Image.asset(
-              "assets/whatsapp_bg_image.png",
-              fit: BoxFit.cover,
-            ),
-          ),
-          Column(
-            children: [
-              ///message list
-              Expanded(
-                child: ListView(
-                  children: [
-                    _messageLayout(
-                      message: "Hello",
-                      alignment: Alignment.centerRight,
-                      createAt: Timestamp.now(),
-                      isSeen: false,
-                      isShowTick: true,
-                      messageBgColor: messageColor,
-                      onLongPress: () {},
-                      onSwipe: () {},
-                    ),
-                    _messageLayout(
-                      message: "How are you?",
-                      alignment: Alignment.centerRight,
-                      createAt: Timestamp.now(),
-                      isSeen: true,
-                      isShowTick: true,
-                      messageBgColor: messageColor,
-                      onLongPress: () {},
-                      onSwipe: () {},
-                    ),
-                    _messageLayout(
-                      message: "I am fine. How about you?",
-                      alignment: Alignment.centerLeft,
-                      createAt: Timestamp.now(),
-                      isSeen: false,
-                      isShowTick: false,
-                      messageBgColor: senderMessageColor,
-                      onLongPress: () {},
-                      onSwipe: () {},
-                    ),
-                  ],
-                ),
+      body: GestureDetector(
+        onTap: () {
+          setState(() {
+            isShowAttachWindow = false;
+          });
+        },
+        child: Stack(
+          children: [
+            ///background image
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 0,
+              child: Image.asset(
+                "assets/whatsapp_bg_image.png",
+                fit: BoxFit.cover,
               ),
+            ),
+            Column(
+              children: [
+                ///message list
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _messageLayout(
+                        message: "Hello",
+                        alignment: Alignment.centerRight,
+                        createAt: Timestamp.now(),
+                        isSeen: false,
+                        isShowTick: true,
+                        messageBgColor: messageColor,
+                        onLongPress: () {},
+                        onSwipe: () {},
+                      ),
+                      _messageLayout(
+                        message: "How are you?",
+                        alignment: Alignment.centerRight,
+                        createAt: Timestamp.now(),
+                        isSeen: true,
+                        isShowTick: true,
+                        messageBgColor: messageColor,
+                        onLongPress: () {},
+                        onSwipe: () {},
+                      ),
+                      _messageLayout(
+                        message: "I am fine. How about you?",
+                        alignment: Alignment.centerLeft,
+                        createAt: Timestamp.now(),
+                        isSeen: false,
+                        isShowTick: false,
+                        messageBgColor: senderMessageColor,
+                        onLongPress: () {},
+                        onSwipe: () {},
+                      ),
+                    ],
+                  ),
+                ),
 
-              ///message type field
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Row(
-                  children: [
-                    ///textfield
-                    Expanded(
-                      child: Container(
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        decoration: BoxDecoration(
-                          color: appBarColor,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: TextField(
-                          controller: _textMessageController,
-                          onChanged: (value) {
-                            if (value.isNotEmpty) {
+                ///message type field
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  child: Row(
+                    children: [
+                      ///textfield
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            color: appBarColor,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: TextField(
+                            controller: _textMessageController,
+                            onTap: () {
                               setState(() {
-                                isDisplaySendButton = true;
+                                isShowAttachWindow = false;
                               });
-                            } else {
-                              setState(() {
-                                isDisplaySendButton = false;
-                              });
-                            }
-                          },
-                          decoration: InputDecoration(
-                            hintText: "Message",
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 15,
-                            ),
-                            border: InputBorder.none,
-                            prefixIcon: Icon(
-                              Icons.emoji_emotions,
-                              color: greyColor,
-                            ),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Wrap(
-                                children: [
-                                  Transform.rotate(
-                                    angle: -0.5,
-                                    child: Icon(
-                                      Icons.attach_file,
-                                      color: greyColor,
+                            },
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                setState(() {
+                                  isDisplaySendButton = true;
+                                });
+                              } else {
+                                setState(() {
+                                  isDisplaySendButton = false;
+                                });
+                              }
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Message",
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(
+                                Icons.emoji_emotions,
+                                color: greyColor,
+                              ),
+                              suffixIcon: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Wrap(
+                                  children: [
+                                    Transform.rotate(
+                                      angle: -0.5,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          isShowAttachWindow =
+                                              !isShowAttachWindow;
+                                          setState(() {});
+                                        },
+                                        child: Icon(
+                                          Icons.attach_file,
+                                          color: greyColor,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Icon(Icons.camera_alt, color: greyColor),
-                                  const SizedBox(width: 10),
-                                ],
+                                    const SizedBox(width: 15),
+                                    Icon(Icons.camera_alt, color: greyColor),
+                                    const SizedBox(width: 10),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
+                      const SizedBox(width: 10),
 
-                    ///send and voice record button
-                    Container(
-                      height: 50,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        color: tabColor,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          isDisplaySendButton ? Icons.send_outlined : Icons.mic,
-                          color: Colors.white,
+                      ///send and voice record button
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          color: tabColor,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            isDisplaySendButton
+                                ? Icons.send_outlined
+                                : Icons.mic,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+
+            ///emoji window
+            isShowAttachWindow
+                ? Positioned(
+                  left: 15,
+                  top: 340,
+                  right: 15,
+                  bottom: 65,
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.sizeOf(context).height * 0.20,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 20,
+                    ),
+                    decoration: BoxDecoration(
+                      color: bottomAttachContainerColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _attachWindowItem(
+                              icon: Icons.document_scanner,
+                              color: Colors.deepPurpleAccent,
+                              title: "Document",
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.camera_alt,
+                              color: Colors.pinkAccent,
+                              title: "Camera",
+                              onTap: () {},
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.image,
+                              color: Colors.purpleAccent,
+                              title: "Gallery",
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _attachWindowItem(
+                              icon: Icons.headphones,
+                              color: Colors.deepOrange,
+                              title: "Audio",
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.location_on,
+                              color: Colors.green,
+                              title: "Location",
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.account_circle,
+                              color: Colors.deepPurpleAccent,
+                              title: "Contact",
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _attachWindowItem(
+                              icon: Icons.bar_chart,
+                              color: tabColor,
+                              title: "Poll",
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.gif_box_outlined,
+                              color: Colors.indigoAccent,
+                              title: "Gif",
+                              onTap: () {},
+                            ),
+                            _attachWindowItem(
+                              icon: Icons.videocam_rounded,
+                              color: Colors.lightGreen,
+                              title: "Video",
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                : Container(),
+          ],
+        ),
       ),
     );
   }
@@ -259,6 +376,34 @@ class _SingleChatPageState extends State<SingleChatPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  _attachWindowItem({
+    IconData? icon,
+    Color? color,
+    String? title,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            padding: const EdgeInsets.all(10),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(40),
+              color: color,
+            ),
+            child: Center(child: Icon(icon, size: 20)),
+          ),
+          const SizedBox(height: 5),
+          Text("$title", style: const TextStyle(color: greyColor, fontSize: 9)),
+        ],
       ),
     );
   }
