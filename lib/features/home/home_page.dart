@@ -130,7 +130,9 @@ class _HomePageState extends State<HomePage>
       case 2:
         return FloatingActionButton(
           backgroundColor: tabColor,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pushNamed(context, PageConst.callContactsPage);
+          },
           child: const Icon(Icons.add_call, color: Colors.white),
         );
 
