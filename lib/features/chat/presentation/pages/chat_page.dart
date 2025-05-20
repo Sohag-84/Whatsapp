@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:whatsapp/core/const/page_const.dart';
 import 'package:whatsapp/core/global/widgets/profile_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
 
@@ -18,6 +19,9 @@ class _ChatPageState extends State<ChatPage> {
         itemCount: 10,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
+            onTap: () {
+              Navigator.pushNamed(context, PageConst.singleChatPage);
+            },
             leading: SizedBox(
               height: 50,
               width: 50,
