@@ -3,8 +3,12 @@ import 'package:whatsapp/features/splash/splash_screen.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/routes/on_generate_route.dart';
 import 'main_injection_container.dart' as di;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await di.init();
   runApp(const MyApp());
 }

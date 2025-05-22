@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "954784171608",
+    "project_id": "e-commerce-app-86963",
+    "storage_bucket": "e-commerce-app-86963.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954784171608:android:ac56325454aba5a1142c2d",
+        "android_client_info": {
+          "package_name": "com.example.e_commerce"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "954784171608-24tio625236flc5bsjurnkopkelgehu2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPnXEEPxigpKARz7qQhI2RKWqL8wMCb3M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "954784171608-24tio625236flc5bsjurnkopkelgehu2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954784171608:android:4c844c453f9e9459142c2d",
+        "android_client_info": {
+          "package_name": "com.example.whatsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "954784171608-24tio625236flc5bsjurnkopkelgehu2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPnXEEPxigpKARz7qQhI2RKWqL8wMCb3M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "954784171608-24tio625236flc5bsjurnkopkelgehu2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
