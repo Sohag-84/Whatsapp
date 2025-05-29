@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp/features/home/home_page.dart';
 import 'package:whatsapp/features/splash/splash_screen.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/user/presentation/cubit/auth/auth_cubit.dart';
@@ -42,7 +43,17 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: "/",
         onGenerateRoute: OnGenerateRoute.route,
-        routes: {"/": (context) => SplashScreen()},
+        routes: {
+          "/":
+              (context) => BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, state) {
+                  if (state is Authenticated) {
+                    return HomePage(uid: state.uid);
+                  }
+                  return SplashScreen();
+                },
+              ),
+        },
       ),
     );
   }
