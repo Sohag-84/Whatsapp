@@ -45,4 +45,14 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> verifyPhoneNumber(String phoneNumber) async =>
       await userRemoteDataSource.verifyPhoneNumber(phoneNumber);
+
+  @override
+  Future<void> login({required String email, required String password}) {
+    return userRemoteDataSource.login(email: email, password: password);
+  }
+
+  @override
+  Future<void> signUp({required String email, required String password}) {
+    return userRemoteDataSource.signUp(email: email, password: password);
+  }
 }

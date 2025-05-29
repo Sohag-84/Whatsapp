@@ -4,6 +4,8 @@ import 'package:whatsapp/features/user/domain/entities/user_entity.dart';
 abstract interface class UserRemoteDataSource {
   Future<void> verifyPhoneNumber(String phoneNumber);
   Future<void> signInWithPhoneNumber(String smsPinCode);
+  Future<void> signUp({required String email, required String password});
+  Future<void> login({required String email, required String password});
 
   Future<bool> isSignIn();
   Future<void> signOut();

@@ -308,11 +308,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
     Timestamp? createAt,
     VoidCallback? onSwipe,
     String? message,
-    String? messageType,
     bool? isShowTick,
     bool? isSeen,
     VoidCallback? onLongPress,
-    double? rightPadding,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5),

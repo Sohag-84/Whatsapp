@@ -179,9 +179,9 @@ class _ShowMultiImageAndVideoPickedWidgetState
   @override
   void dispose() {
     _pageController.dispose();
-    _videoControllers.values.forEach((controller) {
+    for (var controller in _videoControllers.values) {
       controller.dispose();
-    });
+    }
     super.dispose();
   }
 }

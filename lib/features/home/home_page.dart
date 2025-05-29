@@ -6,7 +6,8 @@ import 'package:whatsapp/features/chat/presentation/pages/chat_page.dart';
 import 'package:whatsapp/features/status/presentation/pages/status_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String uid;
+  const HomePage({super.key, required this.uid});
 
   @override
   State<HomePage> createState() => _HomePageState();

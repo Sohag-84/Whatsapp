@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:whatsapp/core/theme/style.dart';
-import 'package:country_pickers/country.dart';
-import 'package:country_pickers/country_pickers.dart';
-import 'package:whatsapp/features/user/presentation/pages/otp_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp/core/const/app_const.dart';
+import 'package:whatsapp/features/home/home_page.dart';
+import 'package:whatsapp/features/user/presentation/cubit/auth/auth_cubit.dart';
+import 'package:whatsapp/features/user/presentation/cubit/credential/credential_cubit.dart';
+import 'package:whatsapp/features/user/presentation/pages/initial_profile_submit_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,117 +14,75 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-
-  static Country _selectedFilteredDialogCountry =
-      CountryPickerUtils.getCountryByPhoneCode("880");
-  String countryCode = _selectedFilteredDialogCountry.phoneCode;
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _bodyWidget();
+    return BlocConsumer<CredentialCubit, CredentialState>(
+      listener: (context, state) {
+        if (state is CredentialSuccess) {
+          BlocProvider.of<AuthCubit>(context).loggedIn();
+        }
+        if (state is CredentialFailure) {
+          toast(state.error);
+        }
+      },
+      builder: (context, state) {
+        if (state is CredentialLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (state is CredentialPhoneAuthProfileInfo) {
+          return InitialProfileSubmitPage(email: _emailController.text.trim());
+        }
+        if (state is CredentialSuccess) {
+          return BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              if (state is Authenticated) {
+                return HomePage(uid: state.uid);
+              }
+              return _buildLoginForm();
+            },
+          );
+        }
+        return _buildLoginForm();
+      },
+    );
   }
 
-  _bodyWidget() {
+  Widget _buildLoginForm() {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  const Center(
-                    child: Text(
-                      "Verify your phone number",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: tabColor,
-                      ),
-                    ),
-                  ),
-                  const Text(
-                    "WhatsApp Clone will send you SMS message (carrier charges may apply) to verify your phone number. Enter the country code and phone number",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  const SizedBox(height: 30),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 2),
-                    onTap: _openFilteredCountryPickerDialog,
-                    title: _buildDialogItem(_selectedFilteredDialogCountry),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(width: 1.50, color: tabColor),
-                          ),
-                        ),
-                        width: 80,
-                        height: 42,
-                        alignment: Alignment.center,
-                        child: Text(_selectedFilteredDialogCountry.phoneCode),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: Container(
-                          height: 40,
-                          margin: const EdgeInsets.only(top: 1.5),
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: tabColor, width: 1.5),
-                            ),
-                          ),
-                          child: TextField(
-                            controller: _phoneController,
-                            decoration: const InputDecoration(
-                              hintText: "Phone Number",
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+              keyboardType: TextInputType.emailAddress,
             ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => OtpPage()),
-                );
-              },
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                width: 120,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: tabColor,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Next",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: "Password"),
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: _submitLogin, child: const Text("Login")),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _submitSignup,
+              child: const Text("Sign Up"),
             ),
           ],
         ),
@@ -130,53 +90,33 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _openFilteredCountryPickerDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (_) => Theme(
-            data: Theme.of(context).copyWith(primaryColor: tabColor),
-            child: CountryPickerDialog(
-              titlePadding: const EdgeInsets.all(8.0),
-              searchCursorColor: tabColor,
-              searchInputDecoration: const InputDecoration(hintText: "Search"),
-              isSearchable: true,
-              title: const Text("Select your phone code"),
-              onValuePicked: (Country country) {
-                setState(() {
-                  _selectedFilteredDialogCountry = country;
-                  countryCode = country.phoneCode;
-                });
-              },
-              itemBuilder: _buildDialogItem,
-            ),
-          ),
+  void _submitLogin() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      toast("Please enter email and password");
+      return;
+    }
+
+    context.read<CredentialCubit>().submitLogin(
+      email: email,
+      password: password,
     );
   }
 
-  Widget _buildDialogItem(Country country) {
-    return Container(
-      height: 40,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: tabColor, width: 1.5)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          CountryPickerUtils.getDefaultFlagImage(country),
-          Text(" +${country.phoneCode}"),
-          Expanded(
-            child: Text(
-              " ${country.name}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const Spacer(),
-          const Icon(Icons.arrow_drop_down),
-        ],
-      ),
+  void _submitSignup() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      toast("Please enter email and password");
+      return;
+    }
+
+    context.read<CredentialCubit>().submitSignup(
+      email: email,
+      password: password,
     );
   }
 }

@@ -165,4 +165,48 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
     );
   }
+
+  @override
+  Future<void> login({required String email, required String password}) async {
+    try {
+      await firebaseAuth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        throw Exception("No user found for that email.");
+      } else if (e.code == 'wrong-password') {
+        throw Exception("Wrong password provided.");
+      } else {
+        throw Exception("Login failed: ${e.message}");
+      }
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
+    }
+  }
+
+  @override
+  Future<void> signUp({required String email, required String password}) async {
+    try {
+      await firebaseAuth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "email-already-in-use") {
+        throw Exception(
+          "The email address is already in use by another account.",
+        );
+      } else if (e.code == "invalid-email") {
+        throw Exception("The email address is not valid.");
+      } else if (e.code == "weak-password") {
+        throw Exception("The password is too weak.");
+      } else {
+        throw Exception("Signup failed: ${e.message}");
+      }
+    } catch (e) {
+      throw Exception("Unexpected error: $e");
+    }
+  }
 }

@@ -4,8 +4,10 @@ import 'package:whatsapp/features/user/data/repository/user_repository_impl.dart
 import 'package:whatsapp/features/user/domain/repository/user_repository.dart';
 import 'package:whatsapp/features/user/domain/usecases/credential/get_current_uid_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/credential/is_signin_usecase.dart';
+import 'package:whatsapp/features/user/domain/usecases/credential/login_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/credential/signin_with_phone_number_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/credential/signout_usecase.dart';
+import 'package:whatsapp/features/user/domain/usecases/credential/signup_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/credential/verify_phone_number_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/user/create_user_usecase.dart';
 import 'package:whatsapp/features/user/domain/usecases/user/get_all_user_usecase.dart';
@@ -39,6 +41,8 @@ Future<void> userInjectionContainer() async {
     () => CredentialCubit(
       signinWithPhoneNumberUsecase: sl.call(),
       verifyPhoneNumberUsecase: sl.call(),
+      loginUsecase: sl.call(),
+      signupUsecase: sl.call(),
       createUserUsecase: sl.call(),
     ),
   );
@@ -52,6 +56,12 @@ Future<void> userInjectionContainer() async {
   );
   sl.registerLazySingleton<IsSigninUsecase>(
     () => IsSigninUsecase(userRepository: sl.call()),
+  );
+  sl.registerLazySingleton<LoginUsecase>(
+    () => LoginUsecase(userRepository: sl.call()),
+  );
+  sl.registerLazySingleton<SignupUsecase>(
+    () => SignupUsecase(userRepository: sl.call()),
   );
   sl.registerLazySingleton<SigninWithPhoneNumberUsecase>(
     () => SigninWithPhoneNumberUsecase(userRepository: sl.call()),
