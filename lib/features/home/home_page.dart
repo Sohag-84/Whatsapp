@@ -65,7 +65,11 @@ class _HomePageState extends State<HomePage>
                     value: "Settings",
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, PageConst.settingsPage);
+                        Navigator.pushNamed(
+                          context,
+                          PageConst.settingsPage,
+                          arguments: widget.uid,
+                        );
                       },
                       child: const Text('Settings'),
                     ),

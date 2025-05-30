@@ -38,6 +38,10 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData.dark().copyWith(
           scaffoldBackgroundColor: backgroundColor,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: tabColor,
+            brightness: Brightness.dark,
+          ),
           dialogTheme: DialogTheme(backgroundColor: appBarColor),
           appBarTheme: AppBarTheme(color: appBarColor, centerTitle: true),
         ),

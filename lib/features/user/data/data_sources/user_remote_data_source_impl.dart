@@ -123,6 +123,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     if (user.username != "" && user.username != null) {
       userInfo['username'] = user.username;
     }
+    if (user.status != "" && user.status != null) {
+      userInfo['status'] = user.status;
+    }
     if (user.profileUrl != "" && user.profileUrl != null) {
       userInfo['profileUrl'] = user.profileUrl;
     }
