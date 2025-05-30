@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp/core/const/page_const.dart';
+import 'package:whatsapp/core/global/widgets/dialog_widget.dart';
 import 'package:whatsapp/core/global/widgets/profile_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
+import 'package:whatsapp/features/user/presentation/cubit/auth/auth_cubit.dart';
 import 'package:whatsapp/features/user/presentation/cubit/get_single_user/get_single_user_cubit.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -139,7 +141,21 @@ class _SettingsPageState extends State<SettingsPage> {
             title: "Logout",
             description: "Logout from WhatsApp",
             icon: Icons.exit_to_app,
-            onTap: () {},
+            onTap: () {
+              displayAlertDialog(
+                context,
+                onTap: () {
+                  context.read<AuthCubit>().loggedOut();
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    PageConst.welcomePage,
+                    (route) => false,
+                  );
+                },
+                confirmTitle: "Logout",
+                content: "Are you sure, you want to logout",
+              );
+            },
           ),
         ],
       ),
