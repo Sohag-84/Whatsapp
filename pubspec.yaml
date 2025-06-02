@@ -19,7 +19,7 @@ dependencies:
   uuid: ^4.5.1
   fluttertoast: ^8.2.12
   intl: ^0.19.0
-  flutter_contacts: ^1.1.7+1
+  flutter_contacts: ^1.1.9+2
   image_picker: 1.1.2
   file_picker: ^10.1.9
   video_player: ^2.8.2
@@ -41,7 +41,7 @@ dependencies:
   audioplayers: ^6.4.0
   just_audio: ^0.10.2
   flutter_story_view: 0.0.4
-  flutter_contacts_service: ^0.0.3
+  # flutter_contacts_service: ^0.0.3
 
 dev_dependencies:
   flutter_test:

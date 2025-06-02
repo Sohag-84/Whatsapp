@@ -7,9 +7,10 @@ part 'get_device_number_state.dart';
 
 class GetDeviceNumberCubit extends Cubit<GetDeviceNumberState> {
   final GetDeviceNumberUsecase getDeviceNumberUsecase;
-  GetDeviceNumberCubit({required this.getDeviceNumberUsecase}) : super(GetDeviceNumberInitial());
+  GetDeviceNumberCubit({required this.getDeviceNumberUsecase})
+    : super(GetDeviceNumberInitial());
 
-  Future<void> getDeviceNumber()async{
+  Future<void> getDeviceNumber() async {
     try {
       final contactNumberList = await getDeviceNumberUsecase.call();
       emit(GetDeviceNumberLoaded(contactList: contactNumberList));
