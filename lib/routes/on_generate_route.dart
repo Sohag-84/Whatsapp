@@ -15,7 +15,12 @@ class OnGenerateRoute {
 
     switch (name) {
       case PageConst.contactUsersPage:
-        return materialPageRoute(const ContactPage());
+        if (arg is String) {
+          return materialPageRoute(ContactPage(currentUserUid: arg));
+        } else {
+          return materialPageRoute(const ErrorWidget());
+        }
+
       case PageConst.settingsPage:
         if (arg is String) {
           return materialPageRoute(SettingsPage(uid: arg));

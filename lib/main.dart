@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp/features/chat/presentation/cubit/chat/chat_cubit.dart';
+import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
 import 'package:whatsapp/features/home/home_page.dart';
 import 'package:whatsapp/features/splash/splash_screen.dart';
 import 'package:whatsapp/core/theme/style.dart';
@@ -32,6 +34,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => di.sl<UserCubit>()),
         BlocProvider(create: (context) => di.sl<GetSingleUserCubit>()),
         BlocProvider(create: (context) => di.sl<GetDeviceNumberCubit>()),
+        BlocProvider(create: (context) => di.sl<ChatCubit>()),
+        BlocProvider(create: (context) => di.sl<MessageCubit>()),
       ],
       child: MaterialApp(
         title: 'Whatsapp',
