@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [ChatPage(), StatusPage(), CallHistoryPage()],
+        children: [ChatPage(uid: widget.uid), StatusPage(), CallHistoryPage()],
       ),
     );
   }
