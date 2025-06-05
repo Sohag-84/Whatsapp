@@ -6,11 +6,12 @@ import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/global/widgets/profile_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/chat/domain/entities/chat_entity.dart';
+import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/chat/chat_cubit.dart';
 
 class ChatPage extends StatefulWidget {
   final String uid;
-  const ChatPage({super.key,required this.uid});
+  const ChatPage({super.key, required this.uid});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -19,9 +20,12 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
-    context.read<ChatCubit>().getMyChat(chatEntity: ChatEntity(senderUid: widget.uid));
+    context.read<ChatCubit>().getMyChat(
+      chatEntity: ChatEntity(senderUid: widget.uid),
+    );
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +49,19 @@ class _ChatPageState extends State<ChatPage> {
                 final chat = state.chats[index];
                 return ListTile(
                   onTap: () {
-                    Navigator.pushNamed(context, PageConst.singleChatPage);
+                    Navigator.pushNamed(
+                      context,
+                      PageConst.singleChatPage,
+                      arguments: MessageEntity(
+                        senderUid: chat.senderUid,
+                        recipientUid: chat.recipientUid,
+                        senderName: chat.senderName,
+                        recipientName: chat.recipientName,
+                        senderProfile: chat.senderProfile,
+                        recipientProfile: chat.recipientProfile,
+                        uid: widget.uid,
+                      ),
+                    );
                   },
                   leading: SizedBox(
                     height: 50,
