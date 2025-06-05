@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/theme/style.dart';
+import 'package:whatsapp/features/chat/domain/entities/chat_entity.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.dart';
@@ -208,19 +211,24 @@ class _SingleChatPageState extends State<SingleChatPage> {
                             const SizedBox(width: 10),
 
                             ///send and voice record button
-                            Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                color: tabColor,
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  isDisplaySendButton
-                                      ? Icons.send_outlined
-                                      : Icons.mic,
-                                  color: Colors.white,
+                            GestureDetector(
+                              onTap: () async {
+                                await sendMessage();
+                              },
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                decoration: BoxDecoration(
+                                  color: tabColor,
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    isDisplaySendButton
+                                        ? Icons.send_outlined
+                                        : Icons.mic,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -331,5 +339,40 @@ class _SingleChatPageState extends State<SingleChatPage> {
         },
       ),
     );
+  }
+
+  Future<void> sendMessage() async {
+    await context
+        .read<MessageCubit>()
+        .sendMessage(
+          chatEntity: ChatEntity(
+            senderUid: widget.messageEntity.senderUid,
+            recipientUid: widget.messageEntity.recipientUid,
+            senderName: widget.messageEntity.senderName,
+            recipientName: widget.messageEntity.recipientName,
+            senderProfile: widget.messageEntity.senderProfile,
+            recipientProfile: widget.messageEntity.recipientProfile,
+            createdAt: Timestamp.now(),
+            totalUnReadMessages: 0,
+          ),
+          messageEntity: MessageEntity(
+            senderUid: widget.messageEntity.senderUid,
+            recipientUid: widget.messageEntity.recipientUid,
+            senderName: widget.messageEntity.senderName,
+            recipientName: widget.messageEntity.recipientName,
+            messageType: MessageTypeConst.textMessage,
+            repliedTo: "",
+            repliedMessageType: "",
+            repliedMessage: "",
+            isSeen: false,
+            createdAt: Timestamp.now(),
+            message: _textMessageController.text,
+          ),
+        )
+        .then((value) {
+          setState(() {
+            _textMessageController.clear();
+          });
+        });
   }
 }
