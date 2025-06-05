@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:swipe_to/swipe_to.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/message_layout.dart';
 
 class SingleChatPage extends StatefulWidget {
   final MessageEntity messageEntity;
@@ -100,7 +99,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
                             final message = state.messages[index];
                             if (message.senderUid ==
                                 widget.messageEntity.senderUid) {
-                              return _messageLayout(
+                              return messageLayout(
+                                context: context,
                                 message: message.message,
                                 alignment: Alignment.centerRight,
                                 createAt: message.createdAt,
@@ -111,7 +111,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 onSwipe: () {},
                               );
                             } else {
-                              return _messageLayout(
+                              return messageLayout(
+                                context: context,
                                 message: message.message,
                                 alignment: Alignment.centerLeft,
                                 createAt: message.createdAt,
@@ -253,18 +254,18 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.document_scanner,
                                     color: Colors.deepPurpleAccent,
                                     title: "Document",
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.camera_alt,
                                     color: Colors.pinkAccent,
                                     title: "Camera",
                                     onTap: () {},
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.image,
                                     color: Colors.purpleAccent,
                                     title: "Gallery",
@@ -276,17 +277,17 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.headphones,
                                     color: Colors.deepOrange,
                                     title: "Audio",
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.location_on,
                                     color: Colors.green,
                                     title: "Location",
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.account_circle,
                                     color: Colors.deepPurpleAccent,
                                     title: "Contact",
@@ -298,18 +299,18 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.bar_chart,
                                     color: tabColor,
                                     title: "Poll",
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.gif_box_outlined,
                                     color: Colors.indigoAccent,
                                     title: "Gif",
                                     onTap: () {},
                                   ),
-                                  _attachWindowItem(
+                                  attachWindowItem(
                                     icon: Icons.videocam_rounded,
                                     color: Colors.lightGreen,
                                     title: "Video",
@@ -328,110 +329,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
           }
           return const SizedBox();
         },
-      ),
-    );
-  }
-
-  _messageLayout({
-    Color? messageBgColor,
-    Alignment? alignment,
-    Timestamp? createAt,
-    VoidCallback? onSwipe,
-    String? message,
-    bool? isShowTick,
-    bool? isSeen,
-    VoidCallback? onLongPress,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: SwipeTo(
-        onRightSwipe: (value) => onSwipe,
-        child: GestureDetector(
-          onLongPress: onLongPress,
-          child: Container(
-            alignment: alignment,
-            child: Stack(
-              children: [
-                ///message text
-                Column(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      padding: const EdgeInsets.only(
-                        left: 8,
-                        right: 85,
-                        top: 5,
-                        bottom: 5,
-                      ),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.sizeOf(context).width * 0.80,
-                      ),
-                      decoration: BoxDecoration(
-                        color: messageBgColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        "$message",
-                        style: TextStyle(color: Colors.white, fontSize: 13),
-                      ),
-                    ),
-                    SizedBox(height: 3),
-                  ],
-                ),
-
-                ///sent time, check seen or unseen message
-                Positioned(
-                  bottom: 4,
-                  right: 10,
-                  child: Row(
-                    children: [
-                      Text(
-                        DateFormat.jm().format(createAt!.toDate()),
-                        style: const TextStyle(fontSize: 12, color: greyColor),
-                      ),
-                      const SizedBox(width: 5),
-                      isShowTick == true
-                          ? Icon(
-                            isSeen == true ? Icons.done_all : Icons.done,
-                            size: 16,
-                            color: isSeen == true ? Colors.blue : greyColor,
-                          )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  _attachWindowItem({
-    IconData? icon,
-    Color? color,
-    String? title,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            padding: const EdgeInsets.all(10),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(40),
-              color: color,
-            ),
-            child: Center(child: Icon(icon, size: 20)),
-          ),
-          const SizedBox(height: 5),
-          Text("$title", style: const TextStyle(color: greyColor, fontSize: 9)),
-        ],
       ),
     );
   }
