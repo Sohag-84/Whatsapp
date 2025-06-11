@@ -1,13 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/theme/style.dart';
-import 'package:whatsapp/features/chat/domain/entities/chat_entity.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/chat_utils.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_layout.dart';
 
 class SingleChatPage extends StatefulWidget {
@@ -213,7 +211,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                             ///send and voice record button
                             GestureDetector(
                               onTap: () async {
-                                await sendMessage();
+                                await sendMessage(
+                                  message: _textMessageController.text,
+                                );
                               },
                               child: Container(
                                 height: 50,
@@ -341,38 +341,25 @@ class _SingleChatPageState extends State<SingleChatPage> {
     );
   }
 
-  Future<void> sendMessage() async {
-    await context
-        .read<MessageCubit>()
-        .sendMessage(
-          chatEntity: ChatEntity(
-            senderUid: widget.messageEntity.senderUid,
-            recipientUid: widget.messageEntity.recipientUid,
-            senderName: widget.messageEntity.senderName,
-            recipientName: widget.messageEntity.recipientName,
-            senderProfile: widget.messageEntity.senderProfile,
-            recipientProfile: widget.messageEntity.recipientProfile,
-            createdAt: Timestamp.now(),
-            totalUnReadMessages: 0,
-          ),
-          messageEntity: MessageEntity(
-            senderUid: widget.messageEntity.senderUid,
-            recipientUid: widget.messageEntity.recipientUid,
-            senderName: widget.messageEntity.senderName,
-            recipientName: widget.messageEntity.recipientName,
-            messageType: MessageTypeConst.textMessage,
-            repliedTo: "",
-            repliedMessageType: "",
-            repliedMessage: "",
-            isSeen: false,
-            createdAt: Timestamp.now(),
-            message: _textMessageController.text,
-          ),
-        )
-        .then((value) {
-          setState(() {
-            _textMessageController.clear();
-          });
-        });
+  Future<void> sendMessage({
+    required String? message,
+    String? type,
+    String? repliedMessage,
+    String? repliedTo,
+    String? repliedMessageType,
+  }) async {
+    await ChatUtils.sendMessage(
+      context: context,
+      messageEntity: widget.messageEntity,
+      message: message,
+      type: type,
+      repliedMessage: repliedMessage,
+      repliedTo: repliedTo,
+      repliedMessageType: repliedMessageType,
+    ).then((value) {
+      setState(() {
+        _textMessageController.clear();
+      });
+    });
   }
 }
