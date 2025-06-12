@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:whatsapp/core/const/app_const.dart';
+import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
@@ -7,6 +12,7 @@ import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.
 import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/chat_utils.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_layout.dart';
+import 'package:whatsapp/storage/storage_provider.dart';
 
 class SingleChatPage extends StatefulWidget {
   final MessageEntity messageEntity;
@@ -20,6 +26,48 @@ class _SingleChatPageState extends State<SingleChatPage> {
   final _textMessageController = TextEditingController();
   bool isDisplaySendButton = false;
   bool isShowAttachWindow = false;
+
+  File? image;
+
+  Future selectImage() async {
+    setState(() => image = null);
+    try {
+      final pickedFile = await ImagePicker.platform.getImageFromSource(
+        source: ImageSource.gallery,
+      );
+
+      setState(() {
+        if (pickedFile != null) {
+          image = File(pickedFile.path);
+        } else {
+          print("no image has been selected");
+        }
+      });
+    } catch (e) {
+      toast("some error occured $e");
+    }
+  }
+
+  File? video;
+
+  Future selectVideo() async {
+    setState(() => image = null);
+    try {
+      final pickedFile = await ImagePicker.platform.getVideo(
+        source: ImageSource.gallery,
+      );
+
+      setState(() {
+        if (pickedFile != null) {
+          video = File(pickedFile.path);
+        } else {
+          print("no image has been selected");
+        }
+      });
+    } catch (e) {
+      toast("some error occured $e");
+    }
+  }
 
   @override
   void initState() {
@@ -208,13 +256,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                             ),
                             const SizedBox(width: 10),
 
-                            ///send and voice record button
+                            ///send message and voice record button
                             GestureDetector(
-                              onTap: () async {
-                                await sendMessage(
-                                  message: _textMessageController.text,
-                                );
-                              },
+                              onTap: () async {},
                               child: Container(
                                 height: 50,
                                 width: 50,
@@ -341,9 +385,48 @@ class _SingleChatPageState extends State<SingleChatPage> {
     );
   }
 
+  Future<void> sendTextMessage() async {
+    await sendMessage(
+      message: _textMessageController.text,
+      type: MessageTypeConst.textMessage,
+    );
+  }
+
+  Future<void> sendImageMessage() async {
+    StorageProviderRemoteDataSource.uploadMessageFile(
+      file: file!,
+      onComplete: (isUploading) {},
+      uid: widget.messageEntity.senderUid,
+      otherUid: widget.messageEntity.recipientUid,
+      type: MessageTypeConst.photoMessage,
+    ).then((photoUrl) async {
+      await sendMessage(message: photoUrl, type: MessageTypeConst.photoMessage);
+    });
+  }
+
+  Future<void> sendVideoMessage() async {
+    StorageProviderRemoteDataSource.uploadMessageFile(
+      file: video!,
+      onComplete: (isUploading) {},
+      uid: widget.messageEntity.senderUid,
+      otherUid: widget.messageEntity.recipientUid,
+      type: MessageTypeConst.videoMessage,
+    ).then((videoUrl) async {
+      await sendMessage(message: videoUrl, type: MessageTypeConst.videoMessage);
+    });
+  }
+
+  Future<void> sendGifMessage() async {
+    final gif = await pickGIF(context);
+    if (gif != null) {
+      String fixedUrl = "https://media.giphy.com/media/${gif.id}/giphy.gif";
+      await sendMessage(message: fixedUrl, type: MessageTypeConst.gifMessage);
+    }
+  }
+
   Future<void> sendMessage({
     required String? message,
-    String? type,
+    required String type,
     String? repliedMessage,
     String? repliedTo,
     String? repliedMessageType,
