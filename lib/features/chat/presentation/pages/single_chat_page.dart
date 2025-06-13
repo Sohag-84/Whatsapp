@@ -1,8 +1,13 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:whatsapp/core/const/app_const.dart';
 import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
@@ -24,10 +29,16 @@ class SingleChatPage extends StatefulWidget {
 
 class _SingleChatPageState extends State<SingleChatPage> {
   final _textMessageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   bool isDisplaySendButton = false;
   bool isShowAttachWindow = false;
 
+  FlutterSoundRecorder? _soundRecorder;
+  bool _isRecording = false;
+  bool _isRecordInit = false;
+
   File? image;
+  File? video;
 
   Future selectImage() async {
     setState(() => image = null);
@@ -48,8 +59,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
     }
   }
 
-  File? video;
-
   Future selectVideo() async {
     setState(() => image = null);
     try {
@@ -69,8 +78,30 @@ class _SingleChatPageState extends State<SingleChatPage> {
     }
   }
 
+  Future<void> _openAudioRecording() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw RecordingPermissionException('Mic permission not allowed!');
+    }
+    await _soundRecorder!.openRecorder();
+    _isRecordInit = true;
+  }
+
+  Future<void> _scrollToBottom() async {
+    if (_scrollController.hasClients) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   void initState() {
+    _soundRecorder = FlutterSoundRecorder();
+    _openAudioRecording();
     BlocProvider.of<MessageCubit>(context).getMessages(
       messageEntity: MessageEntity(
         senderUid: widget.messageEntity.senderUid,
@@ -83,11 +114,15 @@ class _SingleChatPageState extends State<SingleChatPage> {
   @override
   void dispose() {
     _textMessageController.dispose;
+    _scrollController.dispose;
     super.dispose;
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -119,6 +154,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
             return loader();
           }
           if (state is MessageLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollToBottom();
+            });
             return GestureDetector(
               onTap: () {
                 setState(() {
@@ -143,6 +181,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                       ///message list
                       Expanded(
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: state.messages.length,
                           itemBuilder: (BuildContext context, int index) {
                             final message = state.messages[index];
@@ -258,7 +297,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
 
                             ///send message and voice record button
                             GestureDetector(
-                              onTap: () async {},
+                              onTap: () async {
+                                await sendTextMessage();
+                              },
                               child: Container(
                                 height: 50,
                                 width: 50,
@@ -386,15 +427,41 @@ class _SingleChatPageState extends State<SingleChatPage> {
   }
 
   Future<void> sendTextMessage() async {
-    await sendMessage(
-      message: _textMessageController.text,
-      type: MessageTypeConst.textMessage,
-    );
+    if (isDisplaySendButton) {
+      await sendMessage(
+        message: _textMessageController.text,
+        type: MessageTypeConst.textMessage,
+      );
+    } else {
+      final temporaryDir = await getTemporaryDirectory();
+      final audioPath = '${temporaryDir.path}/flutter_sound.aac';
+      if (!_isRecordInit) {
+        return;
+      }
+      if (_isRecording == true) {
+        await _soundRecorder!.stopRecorder();
+        StorageProviderRemoteDataSource.uploadMessageFile(
+          file: File(audioPath),
+          onComplete: (value) {},
+          uid: widget.messageEntity.senderUid,
+          otherUid: widget.messageEntity.recipientUid,
+          type: MessageTypeConst.audioMessage,
+        ).then((audioUrl) {
+          sendMessage(message: audioUrl, type: MessageTypeConst.audioMessage);
+        });
+      } else {
+        await _soundRecorder!.startRecorder(toFile: audioPath);
+      }
+
+      setState(() {
+        _isRecording = !_isRecording;
+      });
+    }
   }
 
   Future<void> sendImageMessage() async {
     StorageProviderRemoteDataSource.uploadMessageFile(
-      file: file!,
+      file: image!,
       onComplete: (isUploading) {},
       uid: widget.messageEntity.senderUid,
       otherUid: widget.messageEntity.recipientUid,
@@ -431,6 +498,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
     String? repliedTo,
     String? repliedMessageType,
   }) async {
+    _scrollToBottom();
     await ChatUtils.sendMessage(
       context: context,
       messageEntity: widget.messageEntity,
@@ -443,6 +511,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
       setState(() {
         _textMessageController.clear();
       });
+      _scrollToBottom();
     });
   }
 }
