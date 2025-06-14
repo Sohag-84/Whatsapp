@@ -241,6 +241,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
                               return messageLayout(
                                 context: context,
                                 message: message.message,
+                                recipientName:
+                                    widget.messageEntity.recipientName ?? "",
                                 messageType:
                                     message.messageType ??
                                     MessageTypeConst.textMessage,
@@ -249,6 +251,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 isSeen: false,
                                 isShowTick: true,
                                 messageBgColor: messageColor,
+                                rightPadding:
+                                    message.repliedMessage == "" ? 85 : 5,
+                                reply: MessageReplayEntity(
+                                  message: message.repliedMessage,
+                                  messageType: message.repliedMessageType,
+                                  username: message.repliedTo,
+                                ),
                                 onLongPress: () {
                                   focusNode.unfocus();
                                   displayAlertDialog(
@@ -291,6 +300,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
                               return messageLayout(
                                 context: context,
                                 message: message.message,
+                                recipientName:
+                                    widget.messageEntity.recipientName ?? "",
                                 messageType:
                                     message.messageType ??
                                     MessageTypeConst.textMessage,
@@ -299,6 +310,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 isSeen: false,
                                 isShowTick: false,
                                 messageBgColor: senderMessageColor,
+                                rightPadding:
+                                    message.repliedMessage == "" ? 85 : 5,
+                                reply: MessageReplayEntity(
+                                  message: message.repliedMessage,
+                                  messageType: message.repliedMessageType,
+                                  username: message.repliedTo,
+                                ),
                                 onLongPress: () {
                                   focusNode.unfocus();
                                   displayAlertDialog(
@@ -767,11 +785,26 @@ class _SingleChatPageState extends State<SingleChatPage> {
   }
 
   Future<void> sendTextMessage() async {
+    final provider = context.read<MessageCubit>();
     if (isDisplaySendButton) {
-      await sendMessage(
-        message: _textMessageController.text,
-        type: MessageTypeConst.textMessage,
-      );
+      if (provider.messageReplay.message != null) {
+        sendMessage(
+          message: _textMessageController.text,
+          type: MessageTypeConst.textMessage,
+          repliedMessage: provider.messageReplay.message,
+          repliedTo: provider.messageReplay.username,
+          repliedMessageType: provider.messageReplay.messageType,
+        );
+      } else {
+        await sendMessage(
+          message: _textMessageController.text,
+          type: MessageTypeConst.textMessage,
+        );
+      }
+      provider.setMessageReplay = MessageReplayEntity();
+      setState(() {
+        _textMessageController.clear();
+      });
     } else {
       final temporaryDir = await getTemporaryDirectory();
       final audioPath = '${temporaryDir.path}/flutter_sound.aac';
@@ -848,9 +881,6 @@ class _SingleChatPageState extends State<SingleChatPage> {
       repliedTo: repliedTo,
       repliedMessageType: repliedMessageType,
     ).then((value) {
-      setState(() {
-        _textMessageController.clear();
-      });
       _scrollToBottom();
     });
   }

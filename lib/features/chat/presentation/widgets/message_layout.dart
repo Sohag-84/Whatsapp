@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:swipe_to/swipe_to.dart';
 import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/theme/style.dart';
+import 'package:whatsapp/features/chat/domain/entities/message_reply_entity.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/message_widgets/message_reply_type_widget.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_widgets/message_type_widget.dart';
 
 Widget messageLayout({
@@ -17,6 +19,9 @@ Widget messageLayout({
   bool? isShowTick,
   bool? isSeen,
   VoidCallback? onLongPress,
+  MessageReplayEntity? reply,
+  required String recipientName,
+  double? rightPadding,
 }) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -36,20 +41,87 @@ Widget messageLayout({
                     padding: EdgeInsets.only(
                       left: 5,
                       right:
-                          messageType == MessageTypeConst.textMessage ? 88 : 5,
+                          messageType == MessageTypeConst.textMessage
+                              ? rightPadding!
+                              : 5,
                       top: 5,
                       bottom: 5,
                     ),
                     constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.80,
+                      maxWidth: MediaQuery.of(context).size.width * 0.80,
                     ),
                     decoration: BoxDecoration(
                       color: messageBgColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: MessageTypeWidget(
-                      message: message,
-                      type: messageType,
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        reply?.message == null || reply?.message == ""
+                            ? const SizedBox()
+                            : Container(
+                              height:
+                                  reply!.messageType ==
+                                          MessageTypeConst.textMessage
+                                      ? 70
+                                      : 80,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: .2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: double.infinity,
+                                    width: 4.5,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          reply.username == recipientName
+                                              ? Colors.deepPurpleAccent
+                                              : tabColor,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        bottomLeft: Radius.circular(15),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0,
+                                        vertical: 5,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${reply.username == recipientName ? reply.username : "You"}",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  reply.username ==
+                                                          recipientName
+                                                      ? Colors.deepPurpleAccent
+                                                      : tabColor,
+                                            ),
+                                          ),
+                                          MessageReplayTypeWidget(
+                                            message: reply.message,
+                                            type: reply.messageType,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        const SizedBox(height: 3),
+
+                        MessageTypeWidget(message: message, type: messageType),
+                      ],
                     ),
                   ),
                   SizedBox(height: 3),
