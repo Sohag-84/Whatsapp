@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:whatsapp/core/const/app_const.dart';
 import 'package:whatsapp/core/const/message_type_const.dart';
+import 'package:whatsapp/core/global/widgets/dialog_widget.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/global/widgets/show_image_picked_widget.dart';
 import 'package:whatsapp/core/global/widgets/show_video_picked_widget.dart';
@@ -229,7 +230,33 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 isSeen: false,
                                 isShowTick: true,
                                 messageBgColor: messageColor,
-                                onLongPress: () {},
+                                onLongPress: () {
+                                  focusNode.unfocus();
+                                  displayAlertDialog(
+                                    context,
+                                    onTap: () {
+                                      context
+                                          .read<MessageCubit>()
+                                          .deleteMessage(
+                                            messageEntity: MessageEntity(
+                                              senderUid:
+                                                  widget
+                                                      .messageEntity
+                                                      .senderUid,
+                                              recipientUid:
+                                                  widget
+                                                      .messageEntity
+                                                      .recipientUid,
+                                              messageId: message.messageId,
+                                            ),
+                                          );
+                                      Navigator.pop(context);
+                                    },
+                                    confirmTitle: "Delete",
+                                    content:
+                                        "Are you sure you want to delete this message?",
+                                  );
+                                },
                                 onSwipe: () {},
                               );
                             } else {
@@ -244,7 +271,33 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 isSeen: false,
                                 isShowTick: false,
                                 messageBgColor: senderMessageColor,
-                                onLongPress: () {},
+                                onLongPress: () {
+                                  focusNode.unfocus();
+                                  displayAlertDialog(
+                                    context,
+                                    onTap: () {
+                                      context
+                                          .read<MessageCubit>()
+                                          .deleteMessage(
+                                            messageEntity: MessageEntity(
+                                              senderUid:
+                                                  widget
+                                                      .messageEntity
+                                                      .senderUid,
+                                              recipientUid:
+                                                  widget
+                                                      .messageEntity
+                                                      .recipientUid,
+                                              messageId: message.messageId,
+                                            ),
+                                          );
+                                      Navigator.pop(context);
+                                    },
+                                    confirmTitle: "Delete",
+                                    content:
+                                        "Are you sure you want to delete this message?",
+                                  );
+                                },
                                 onSwipe: () {},
                               );
                             }
