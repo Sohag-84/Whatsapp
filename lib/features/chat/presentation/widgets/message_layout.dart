@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/theme/style.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/message_widgets/message_type_widget.dart';
 
 Widget messageLayout({
   required BuildContext context,
@@ -11,6 +13,7 @@ Widget messageLayout({
   Timestamp? createAt,
   VoidCallback? onSwipe,
   String? message,
+  required String messageType,
   bool? isShowTick,
   bool? isSeen,
   VoidCallback? onLongPress,
@@ -30,9 +33,10 @@ Widget messageLayout({
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.only(
-                      left: 8,
-                      right: 85,
+                    padding: EdgeInsets.only(
+                      left: 5,
+                      right:
+                          messageType == MessageTypeConst.textMessage ? 88 : 5,
                       top: 5,
                       bottom: 5,
                     ),
@@ -43,9 +47,9 @@ Widget messageLayout({
                       color: messageBgColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(
-                      "$message",
-                      style: TextStyle(color: Colors.white, fontSize: 13),
+                    child: MessageTypeWidget(
+                      message: message,
+                      type: messageType,
                     ),
                   ),
                   SizedBox(height: 3),

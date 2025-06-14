@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_visible_for_testing_member
+// ignore_for_file: invalid_use_of_visible_for_testing_member, use_build_context_synchronously
 
 import 'dart:io';
 
@@ -11,6 +11,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:whatsapp/core/const/app_const.dart';
 import 'package:whatsapp/core/const/message_type_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
+import 'package:whatsapp/core/global/widgets/show_image_picked_widget.dart';
+import 'package:whatsapp/core/global/widgets/show_video_picked_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
@@ -190,6 +192,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                               return messageLayout(
                                 context: context,
                                 message: message.message,
+                                messageType:
+                                    message.messageType ??
+                                    MessageTypeConst.textMessage,
                                 alignment: Alignment.centerRight,
                                 createAt: message.createdAt,
                                 isSeen: false,
@@ -202,6 +207,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
                               return messageLayout(
                                 context: context,
                                 message: message.message,
+                                messageType:
+                                    message.messageType ??
+                                    MessageTypeConst.textMessage,
                                 alignment: Alignment.centerLeft,
                                 createAt: message.createdAt,
                                 isSeen: false,
@@ -258,14 +266,23 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                       vertical: 15,
                                     ),
                                     border: InputBorder.none,
-                                    prefixIcon: Icon(
-                                      Icons.emoji_emotions,
-                                      color: greyColor,
+                                    prefixIcon: GestureDetector(
+                                      onTap: () async {
+                                        await sendGifMessage();
+                                        setState(() {
+                                          isShowAttachWindow = false;
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.emoji_emotions,
+                                        color: greyColor,
+                                      ),
                                     ),
                                     suffixIcon: Padding(
                                       padding: const EdgeInsets.only(top: 12),
                                       child: Wrap(
                                         children: [
+                                          ///send video message
                                           Transform.rotate(
                                             angle: -0.5,
                                             child: GestureDetector(
@@ -281,9 +298,38 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                             ),
                                           ),
                                           const SizedBox(width: 15),
-                                          Icon(
-                                            Icons.camera_alt,
-                                            color: greyColor,
+
+                                          ///send image message
+                                          GestureDetector(
+                                            onTap: () {
+                                              selectImage().then((value) {
+                                                if (image != null) {
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback((
+                                                        timeStamp,
+                                                      ) {
+                                                        showImagePickedBottomModalSheet(
+                                                          context,
+                                                          recipientName:
+                                                              widget
+                                                                  .messageEntity
+                                                                  .recipientName,
+                                                          file: image,
+                                                          onTap: () async {
+                                                            await sendImageMessage();
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                          },
+                                                        );
+                                                      });
+                                                }
+                                              });
+                                            },
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              color: greyColor,
+                                            ),
                                           ),
                                           const SizedBox(width: 10),
                                         ],
@@ -324,7 +370,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                   ),
 
                   ///emoji window
-                  isShowAttachWindow
+                  isShowAttachWindow == true
                       ? Positioned(
                         left: 15,
                         top: 340,
@@ -352,6 +398,8 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     color: Colors.deepPurpleAccent,
                                     title: "Document",
                                   ),
+
+                                  ///to send image message
                                   attachWindowItem(
                                     icon: Icons.camera_alt,
                                     color: Colors.pinkAccent,
@@ -362,6 +410,29 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     icon: Icons.image,
                                     color: Colors.purpleAccent,
                                     title: "Gallery",
+                                    onTap: () {
+                                      selectImage().then((value) {
+                                        if (image != null) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((
+                                                timeStamp,
+                                              ) {
+                                                showImagePickedBottomModalSheet(
+                                                  context,
+                                                  recipientName:
+                                                      widget
+                                                          .messageEntity
+                                                          .recipientName,
+                                                  file: image,
+                                                  onTap: () async {
+                                                    await sendImageMessage();
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              });
+                                        }
+                                      });
+                                    },
                                   ),
                                 ],
                               ),
@@ -397,17 +468,50 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     color: tabColor,
                                     title: "Poll",
                                   ),
+                                  //to send Gif message
                                   attachWindowItem(
                                     icon: Icons.gif_box_outlined,
                                     color: Colors.indigoAccent,
                                     title: "Gif",
-                                    onTap: () {},
+                                    onTap: () async {
+                                      await sendGifMessage();
+                                      setState(() {
+                                        isShowAttachWindow = false;
+                                      });
+                                    },
                                   ),
+
+                                  ///to send video message
                                   attachWindowItem(
                                     icon: Icons.videocam_rounded,
                                     color: Colors.lightGreen,
                                     title: "Video",
-                                    onTap: () {},
+                                    onTap: () {
+                                      selectVideo().then((value) {
+                                        if (video != null) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((
+                                                timeStamp,
+                                              ) {
+                                                showVideoPickedBottomModalSheet(
+                                                  context,
+                                                  recipientName:
+                                                      widget
+                                                          .messageEntity
+                                                          .recipientName,
+                                                  file: video,
+                                                  onTap: () async {
+                                                    await sendVideoMessage();
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              });
+                                        }
+                                      });
+                                      setState(() {
+                                        isShowAttachWindow = false;
+                                      });
+                                    },
                                   ),
                                 ],
                               ),
@@ -460,7 +564,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
   }
 
   Future<void> sendImageMessage() async {
-    StorageProviderRemoteDataSource.uploadMessageFile(
+    await StorageProviderRemoteDataSource.uploadMessageFile(
       file: image!,
       onComplete: (isUploading) {},
       uid: widget.messageEntity.senderUid,

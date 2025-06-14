@@ -1,23 +1,20 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
 
 class VideoWidget extends StatefulWidget {
   final File videoFile;
   const VideoWidget({super.key, required this.videoFile});
 
   @override
-  _VideoWidgetState createState() => _VideoWidgetState();
+  State<VideoWidget> createState() => _VideoWidgetState();
 }
 
 class _VideoWidgetState extends State<VideoWidget> {
   late VideoPlayerController _controller;
 
   bool isPlay = false;
-
 
   @override
   void initState() {
@@ -30,14 +27,14 @@ class _VideoWidgetState extends State<VideoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return  Stack(
+    return Stack(
       alignment: Alignment.center,
       children: [
         _controller.value.isInitialized
             ? AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        )
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            )
             : Container(),
         Align(
           alignment: Alignment.center,
@@ -54,7 +51,8 @@ class _VideoWidgetState extends State<VideoWidget> {
               });
             },
             icon: Icon(
-              isPlay ? Icons.pause_circle : Icons.play_circle, size: 40,
+              isPlay ? Icons.pause_circle : Icons.play_circle,
+              size: 40,
             ),
           ),
         ),
