@@ -21,7 +21,7 @@ Widget messageLayout({
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 5),
     child: SwipeTo(
-      onRightSwipe: (value) => onSwipe,
+      onRightSwipe: (value) => onSwipe?.call(),
       child: GestureDetector(
         onLongPress: onLongPress,
         child: Container(

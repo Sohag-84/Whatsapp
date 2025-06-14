@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp/features/chat/domain/entities/chat_entity.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
+import 'package:whatsapp/features/chat/domain/entities/message_reply_entity.dart';
 import 'package:whatsapp/features/chat/domain/usecases/delete_message_usecase.dart';
 import 'package:whatsapp/features/chat/domain/usecases/get_message_usecase.dart';
 import 'package:whatsapp/features/chat/domain/usecases/send_message_usecase.dart';
@@ -60,5 +61,13 @@ class MessageCubit extends Cubit<MessageState> {
     } catch (e) {
       emit(MessageFailure(error: e.toString()));
     }
+  }
+
+  MessageReplayEntity messageReplay = MessageReplayEntity();
+
+  MessageReplayEntity get getMessageReplay => MessageReplayEntity();
+
+  set setMessageReplay(MessageReplayEntity messageReplay) {
+    this.messageReplay = messageReplay;
   }
 }

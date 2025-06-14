@@ -17,10 +17,12 @@ import 'package:whatsapp/core/global/widgets/show_image_picked_widget.dart';
 import 'package:whatsapp/core/global/widgets/show_video_picked_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
+import 'package:whatsapp/features/chat/domain/entities/message_reply_entity.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/chat_utils.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_layout.dart';
+import 'package:whatsapp/features/chat/presentation/widgets/message_widgets/message_reply_preview_widget.dart';
 import 'package:whatsapp/storage/storage_provider.dart';
 
 class SingleChatPage extends StatefulWidget {
@@ -130,6 +132,20 @@ class _SingleChatPageState extends State<SingleChatPage> {
     }
   }
 
+  void onMessageSwipe({
+    String? message,
+    String? username,
+    String? type,
+    bool? isMe,
+  }) {
+    context.read<MessageCubit>().setMessageReplay = MessageReplayEntity(
+      message: message,
+      username: username,
+      messageType: type,
+      isMe: isMe,
+    );
+  }
+
   @override
   void initState() {
     _soundRecorder = FlutterSoundRecorder();
@@ -155,6 +171,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+    final provider = context.read<MessageCubit>();
+    bool isReplying = provider.messageReplay.message != null;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -257,7 +276,16 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                         "Are you sure you want to delete this message?",
                                   );
                                 },
-                                onSwipe: () {},
+                                onSwipe: () {
+                                  onMessageSwipe(
+                                    message: message.message,
+                                    username: message.senderName,
+                                    type: message.messageType,
+                                    isMe: true,
+                                  );
+
+                                  setState(() {});
+                                },
                               );
                             } else {
                               return messageLayout(
@@ -298,19 +326,52 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                         "Are you sure you want to delete this message?",
                                   );
                                 },
-                                onSwipe: () {},
+                                onSwipe: () {
+                                  onMessageSwipe(
+                                    message: message.message,
+                                    username: message.senderName,
+                                    type: message.messageType,
+                                    isMe: false,
+                                  );
+
+                                  setState(() {});
+                                },
                               );
                             }
                           },
                         ),
                       ),
 
+                      isReplying == true
+                          ? const SizedBox(height: 5)
+                          : const SizedBox(height: 0),
+
+                      isReplying == true
+                          ? Row(
+                            children: [
+                              Expanded(
+                                child: MessageReplayPreviewWidget(
+                                  onCancelReplayListener: () {
+                                    provider.setMessageReplay =
+                                        MessageReplayEntity();
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                              Container(width: 60),
+                            ],
+                          )
+                          : const SizedBox(),
+
                       ///message type field
                       Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
+                        margin: EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          top: isReplying == true ? 0 : 5,
+                          bottom: 5,
                         ),
+
                         child: Row(
                           children: [
                             ///textfield
@@ -322,7 +383,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: appBarColor,
-                                  borderRadius: BorderRadius.circular(25),
+                                  borderRadius:
+                                      isReplying == true
+                                          ? const BorderRadius.only(
+                                            bottomLeft: Radius.circular(25),
+                                            bottomRight: Radius.circular(25),
+                                          )
+                                          : BorderRadius.circular(25),
                                 ),
                                 child: TextField(
                                   controller: _textMessageController,
