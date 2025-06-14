@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
@@ -41,6 +42,34 @@ class _SingleChatPageState extends State<SingleChatPage> {
 
   File? image;
   File? video;
+
+  bool isShowEmojiKeyboard = false;
+  FocusNode focusNode = FocusNode();
+
+  void _hideEmojiContainer() {
+    setState(() {
+      isShowEmojiKeyboard = false;
+    });
+  }
+
+  void _showEmojiContainer() {
+    setState(() {
+      isShowEmojiKeyboard = true;
+    });
+  }
+
+  void _showKeyboard() => focusNode.requestFocus();
+  void _hideKeyboard() => focusNode.unfocus();
+
+  void toggleEmojiKeyboard() {
+    if (isShowEmojiKeyboard) {
+      _showKeyboard();
+      _hideEmojiContainer();
+    } else {
+      _hideKeyboard();
+      _showEmojiContainer();
+    }
+  }
 
   Future selectImage() async {
     setState(() => image = null);
@@ -244,11 +273,14 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 ),
                                 child: TextField(
                                   controller: _textMessageController,
+                                  focusNode: focusNode,
                                   onTap: () {
                                     setState(() {
                                       isShowAttachWindow = false;
+                                      isShowEmojiKeyboard = false;
                                     });
                                   },
+
                                   onChanged: (value) {
                                     if (value.isNotEmpty) {
                                       setState(() {
@@ -267,14 +299,11 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     ),
                                     border: InputBorder.none,
                                     prefixIcon: GestureDetector(
-                                      onTap: () async {
-                                        await sendGifMessage();
-                                        setState(() {
-                                          isShowAttachWindow = false;
-                                        });
-                                      },
+                                      onTap: toggleEmojiKeyboard,
                                       child: Icon(
-                                        Icons.emoji_emotions,
+                                        isShowEmojiKeyboard == false
+                                            ? Icons.emoji_emotions
+                                            : Icons.keyboard_outlined,
                                         color: greyColor,
                                       ),
                                     ),
@@ -366,10 +395,97 @@ class _SingleChatPageState extends State<SingleChatPage> {
                           ],
                         ),
                       ),
+
+                      ///to send emoji message
+                      isShowEmojiKeyboard
+                          ? SizedBox(
+                            height: 310,
+                            child: Stack(
+                              children: [
+                                EmojiPicker(
+                                  onEmojiSelected: ((category, emoji) {
+                                    setState(() {
+                                      _textMessageController.text =
+                                          _textMessageController.text +
+                                          emoji.emoji;
+                                    });
+                                  }),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 40,
+                                    decoration: const BoxDecoration(
+                                      color: appBarColor,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20.0,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Icon(
+                                            Icons.search,
+                                            size: 20,
+                                            color: greyColor,
+                                          ),
+                                          const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.emoji_emotions_outlined,
+                                                size: 20,
+                                                color: tabColor,
+                                              ),
+                                              SizedBox(width: 15),
+                                              Icon(
+                                                Icons.gif_box_outlined,
+                                                size: 20,
+                                                color: greyColor,
+                                              ),
+                                              SizedBox(width: 15),
+                                              Icon(
+                                                Icons.ad_units,
+                                                size: 20,
+                                                color: greyColor,
+                                              ),
+                                            ],
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                _textMessageController.text =
+                                                    _textMessageController.text
+                                                        .substring(
+                                                          0,
+                                                          _textMessageController
+                                                                  .text
+                                                                  .length -
+                                                              2,
+                                                        );
+                                              });
+                                            },
+                                            child: const Icon(
+                                              Icons.backspace_outlined,
+                                              size: 20,
+                                              color: greyColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                          : const SizedBox(),
                     ],
                   ),
 
-                  ///emoji window
+                  ///attach file window
                   isShowAttachWindow == true
                       ? Positioned(
                         left: 15,
