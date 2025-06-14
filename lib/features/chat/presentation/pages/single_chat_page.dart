@@ -422,10 +422,12 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                   onChanged: (value) {
                                     if (value.isNotEmpty) {
                                       setState(() {
+                                        _textMessageController.text = value;
                                         isDisplaySendButton = true;
                                       });
                                     } else {
                                       setState(() {
+                                        _textMessageController.text = value;
                                         isDisplaySendButton = false;
                                       });
                                     }
@@ -522,8 +524,13 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    isDisplaySendButton
+                                    isDisplaySendButton ||
+                                            _textMessageController
+                                                .text
+                                                .isNotEmpty
                                         ? Icons.send_outlined
+                                        : _isRecording
+                                        ? Icons.close
                                         : Icons.mic,
                                     color: Colors.white,
                                   ),
@@ -786,7 +793,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
 
   Future<void> sendTextMessage() async {
     final provider = context.read<MessageCubit>();
-    if (isDisplaySendButton) {
+    if (isDisplaySendButton || _textMessageController.text.isNotEmpty) {
       if (provider.messageReplay.message != null) {
         sendMessage(
           message: _textMessageController.text,
