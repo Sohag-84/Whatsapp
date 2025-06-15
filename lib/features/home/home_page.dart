@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp/core/const/page_const.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/call/presentation/pages/call_history_page.dart';
 import 'package:whatsapp/features/chat/presentation/pages/chat_page.dart';
 import 'package:whatsapp/features/status/presentation/pages/status_page.dart';
+import 'package:whatsapp/features/user/domain/entities/user_entity.dart';
+import 'package:whatsapp/features/user/presentation/cubit/user/user_cubit.dart';
 
 class HomePage extends StatefulWidget {
   final String uid;
@@ -14,12 +17,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController? _tabController;
   int currentTabIndex = 0;
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        context.read<UserCubit>().updateUser(
+          userEntity: UserEntity(uid: widget.uid, isOnline: true),
+        );
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.paused:
+        context.read<UserCubit>().updateUser(
+          userEntity: UserEntity(uid: widget.uid, isOnline: false),
+        );
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
     _tabController!.addListener(() {
       setState(() {
@@ -31,6 +56,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController?.dispose();
     super.dispose();
   }

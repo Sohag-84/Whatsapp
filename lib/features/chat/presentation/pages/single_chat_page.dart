@@ -23,6 +23,7 @@ import 'package:whatsapp/features/chat/presentation/widgets/attach_window_item.d
 import 'package:whatsapp/features/chat/presentation/widgets/chat_utils.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_layout.dart';
 import 'package:whatsapp/features/chat/presentation/widgets/message_widgets/message_reply_preview_widget.dart';
+import 'package:whatsapp/features/user/presentation/cubit/get_single_user/get_single_user_cubit.dart';
 import 'package:whatsapp/storage/storage_provider.dart';
 
 class SingleChatPage extends StatefulWidget {
@@ -150,7 +151,10 @@ class _SingleChatPageState extends State<SingleChatPage> {
   void initState() {
     _soundRecorder = FlutterSoundRecorder();
     _openAudioRecording();
-    BlocProvider.of<MessageCubit>(context).getMessages(
+    context.read<GetSingleUserCubit>().getSingleUser(
+      uid: widget.messageEntity.recipientUid!,
+    );
+    context.read<MessageCubit>().getMessages(
       messageEntity: MessageEntity(
         senderUid: widget.messageEntity.senderUid,
         recipientUid: widget.messageEntity.recipientUid,
@@ -181,9 +185,22 @@ class _SingleChatPageState extends State<SingleChatPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(widget.messageEntity.recipientName ?? ""),
-            Text(
-              "Online",
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w400),
+            BlocBuilder<GetSingleUserCubit, GetSingleUserState>(
+              builder: (context, state) {
+                if (state is GetSingleUserLoaded) {
+                  return state.singleUser.isOnline == true
+                      ? const Text(
+                        "Online",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      )
+                      : Container();
+                }
+
+                return Container();
+              },
             ),
           ],
         ),
