@@ -41,4 +41,11 @@ class ChatRepositoryImpl implements ChatRepository {
       messageEntity: messageEntity,
     );
   }
+
+  @override
+  Future<void> seenMessageUpdate({
+    required MessageEntity messageEntity,
+  }) async => await chatRemoteDataSource.seenMessageUpdate(
+    messageEntity: messageEntity,
+  );
 }

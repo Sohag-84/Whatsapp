@@ -14,4 +14,5 @@ abstract interface class ChatRepository {
 
   Future<void> deleteMessage({required MessageEntity messageEntity});
   Future<void> deleteChat({required ChatEntity chatEntity});
+  Future<void> seenMessageUpdate({required MessageEntity messageEntity});
 }

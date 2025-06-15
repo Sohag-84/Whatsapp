@@ -6,6 +6,7 @@ import 'package:whatsapp/features/chat/domain/usecases/delete_message_usecase.da
 import 'package:whatsapp/features/chat/domain/usecases/delete_my_chat_usecase.dart';
 import 'package:whatsapp/features/chat/domain/usecases/get_message_usecase.dart';
 import 'package:whatsapp/features/chat/domain/usecases/get_my_chat_usecase.dart';
+import 'package:whatsapp/features/chat/domain/usecases/seen_message_update_usecase.dart';
 import 'package:whatsapp/features/chat/domain/usecases/send_message_usecase.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/chat/chat_cubit.dart';
 import 'package:whatsapp/features/chat/presentation/cubit/message/message_cubit.dart';
@@ -22,6 +23,7 @@ Future<void> chatInjectionContainer() async {
       getMessageUsecase: sl.call(),
       deleteMessageUsecase: sl.call(),
       sendMessageUsecase: sl.call(),
+      seenMessageUpdateUsecase: sl.call(),
     ),
   );
 
@@ -40,6 +42,9 @@ Future<void> chatInjectionContainer() async {
   );
   sl.registerLazySingleton<SendMessageUsecase>(
     () => SendMessageUsecase(sl.call()),
+  );
+  sl.registerLazySingleton<SeenMessageUpdateUsecase>(
+    () => SeenMessageUpdateUsecase(chatRepository: sl.call()),
   );
 
   ///REPOSITORY & DATA SOURCE INJECTION
