@@ -66,7 +66,7 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  Future<void> seenMessageUpdate({required MessageEntity messageEntity}) async {
+  Future<void> seenMessage({required MessageEntity messageEntity}) async {
     try {
       await seenMessageUpdateUsecase(messageEntity: messageEntity);
     } on SocketException {

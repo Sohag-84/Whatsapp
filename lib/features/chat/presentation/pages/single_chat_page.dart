@@ -161,9 +161,9 @@ class _SingleChatPageState extends State<SingleChatPage> {
 
   @override
   void dispose() {
-    _textMessageController.dispose;
-    _scrollController.dispose;
-    super.dispose;
+    _textMessageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -236,6 +236,18 @@ class _SingleChatPageState extends State<SingleChatPage> {
                           itemCount: state.messages.length,
                           itemBuilder: (BuildContext context, int index) {
                             final message = state.messages[index];
+                            if (message.isSeen == false &&
+                                message.recipientUid ==
+                                    widget.messageEntity.uid) {
+                              provider.seenMessage(
+                                messageEntity: MessageEntity(
+                                  senderUid: widget.messageEntity.senderUid,
+                                  recipientUid:
+                                      widget.messageEntity.recipientUid,
+                                  messageId: message.messageId,
+                                ),
+                              );
+                            }
                             if (message.senderUid ==
                                 widget.messageEntity.senderUid) {
                               return messageLayout(
@@ -248,7 +260,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     MessageTypeConst.textMessage,
                                 alignment: Alignment.centerRight,
                                 createAt: message.createdAt,
-                                isSeen: false,
+                                isSeen: message.isSeen,
                                 isShowTick: true,
                                 messageBgColor: messageColor,
                                 rightPadding:
@@ -307,7 +319,7 @@ class _SingleChatPageState extends State<SingleChatPage> {
                                     MessageTypeConst.textMessage,
                                 alignment: Alignment.centerLeft,
                                 createAt: message.createdAt,
-                                isSeen: false,
+                                isSeen: message.isSeen,
                                 isShowTick: false,
                                 messageBgColor: senderMessageColor,
                                 rightPadding:
