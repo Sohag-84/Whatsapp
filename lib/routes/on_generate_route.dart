@@ -5,6 +5,7 @@ import 'package:whatsapp/features/chat/domain/entities/message_entity.dart';
 import 'package:whatsapp/features/chat/presentation/pages/single_chat_page.dart';
 import 'package:whatsapp/features/home/contact_page.dart';
 import 'package:whatsapp/features/settings/settings_page.dart';
+import 'package:whatsapp/features/status/domain/enitties/status_entity.dart';
 import 'package:whatsapp/features/status/presentation/pages/my_status_page.dart';
 import 'package:whatsapp/features/user/domain/entities/user_entity.dart';
 import 'package:whatsapp/features/user/presentation/pages/edit_profile_page.dart';
@@ -35,7 +36,11 @@ class OnGenerateRoute {
           return materialPageRoute(const ErrorWidget());
         }
       case PageConst.myStatusPage:
-        return materialPageRoute(const MyStatusPage());
+        if (arg is StatusEntity) {
+          return materialPageRoute(MyStatusPage(status: arg));
+        } else {
+          return materialPageRoute(const ErrorWidget());
+        }
       case PageConst.callContactsPage:
         return materialPageRoute(const CallContactPage());
       case PageConst.singleChatPage:

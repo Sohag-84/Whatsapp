@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_story_view/flutter_story_view.dart';
+import 'package:whatsapp/core/const/app_const.dart';
 import 'package:whatsapp/core/const/page_const.dart';
 import 'package:flutter_story_view/models/story_item.dart';
 import 'package:whatsapp/core/global/date/date_formats.dart';
@@ -130,7 +131,6 @@ class _StatusPageState extends State<StatusPage> {
               state.statuses
                   .where((element) => element.uid != widget.currentUser.uid)
                   .toList();
-          print("statuses loaded $statuses");
 
           return BlocBuilder<GetMyStatusCubit, GetMyStatusState>(
             builder: (context, state) {
@@ -142,7 +142,6 @@ class _StatusPageState extends State<StatusPage> {
               }
 
               if (state is GetMyStatusLoaded) {
-                print("loaded my status ${state.myStatus}");
                 return _bodyWidget(
                   statuses,
                   widget.currentUser,
@@ -150,13 +149,11 @@ class _StatusPageState extends State<StatusPage> {
                 );
               }
 
-              return const Center(
-                child: Text("Error Occured form inside widget"),
-              );
+              return const SizedBox();
             },
           );
         } else {
-          return const Text("Hello world");
+          return const SizedBox();
         }
       },
     );
@@ -270,16 +267,20 @@ class _StatusPageState extends State<StatusPage> {
                 ),
 
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      PageConst.myStatusPage,
-                      arguments: myStatus,
-                    );
+                  onTap: () async {
+                    if (myStatus != null) {
+                      Navigator.pushNamed(
+                        context,
+                        PageConst.myStatusPage,
+                        arguments: myStatus,
+                      );
+                    } else {
+                      toast("Please add your status first");
+                    }
                   },
                   child: Icon(
                     Icons.more_horiz,
-                    color: greyColor.withOpacity(.5),
+                    color: greyColor.withValues(alpha: .5),
                   ),
                 ),
                 const SizedBox(width: 10),
