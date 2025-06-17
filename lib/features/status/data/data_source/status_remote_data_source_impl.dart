@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:whatsapp/core/const/firebase_collection_const.dart';
-import 'package:whatsapp/features/chat/data/models/status_model.dart';
+import 'package:whatsapp/features/status/data/models/status_model.dart';
 import 'package:whatsapp/features/status/data/data_source/status_remote_data_source.dart';
 import 'package:whatsapp/features/status/domain/enitties/status_entity.dart';
 import 'package:whatsapp/features/status/domain/enitties/status_image_entity.dart';

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp/core/const/page_const.dart';
+import 'package:whatsapp/core/global/widgets/loader.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/call/presentation/pages/call_history_page.dart';
 import 'package:whatsapp/features/chat/presentation/pages/chat_page.dart';
 import 'package:whatsapp/features/status/presentation/pages/status_page.dart';
 import 'package:whatsapp/features/user/domain/entities/user_entity.dart';
+import 'package:whatsapp/features/user/presentation/cubit/get_single_user/get_single_user_cubit.dart';
 import 'package:whatsapp/features/user/presentation/cubit/user/user_cubit.dart';
 
 class HomePage extends StatefulWidget {
   final String uid;
-  const HomePage({super.key, required this.uid});
+  final int? index;
+  const HomePage({super.key, required this.uid, this.index});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -51,6 +54,14 @@ class _HomePageState extends State<HomePage>
         currentTabIndex = _tabController!.index;
       });
     });
+
+    context.read<GetSingleUserCubit>().getSingleUser(uid: widget.uid);
+    if (widget.index != null) {
+      setState(() {
+        currentTabIndex = widget.index!;
+        _tabController!.animateTo(1);
+      });
+    }
     super.initState();
   }
 
@@ -63,84 +74,117 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "WhatsApp",
+    return BlocBuilder<GetSingleUserCubit, GetSingleUserState>(
+      builder: (context, state) {
+        if (state is GetSingleUserLoading) {
+          return loader();
+        }
+        if (state is GetSingleUserLoaded) {
+          final currentUser = state.singleUser;
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(
+                "WhatsApp",
 
-          style: TextStyle(
-            fontSize: 20,
-            color: greyColor,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: false,
-        actions: [
-          const Icon(Icons.camera_alt_outlined, color: greyColor, size: 28),
-          const SizedBox(width: 25),
-          const Icon(Icons.search, color: greyColor, size: 28),
-          const SizedBox(width: 10),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: greyColor, size: 28),
-            color: appBarColor,
-            iconSize: 28,
-            onSelected: (value) {},
-            itemBuilder:
-                (context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: "Settings",
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          PageConst.settingsPage,
-                          arguments: widget.uid,
-                        );
-                      },
-                      child: const Text('Settings'),
+                style: TextStyle(
+                  fontSize: 20,
+                  color: greyColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              centerTitle: false,
+              actions: [
+                const Icon(
+                  Icons.camera_alt_outlined,
+                  color: greyColor,
+                  size: 28,
+                ),
+                const SizedBox(width: 25),
+                const Icon(Icons.search, color: greyColor, size: 28),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: greyColor, size: 28),
+                  color: appBarColor,
+                  iconSize: 28,
+                  onSelected: (value) {},
+                  itemBuilder:
+                      (context) => <PopupMenuEntry<String>>[
+                        PopupMenuItem<String>(
+                          value: "Settings",
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                PageConst.settingsPage,
+                                arguments: widget.uid,
+                              );
+                            },
+                            child: const Text('Settings'),
+                          ),
+                        ),
+                      ],
+                ),
+              ],
+              bottom: TabBar(
+                labelColor: tabColor,
+                unselectedLabelColor: greyColor,
+                indicatorColor: tabColor,
+                controller: _tabController,
+                tabs: const [
+                  Tab(
+                    child: Text(
+                      "Chats",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Tab(
+                    child: Text(
+                      "Status",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Tab(
+                    child: Text(
+                      "Calls",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
-          ),
-        ],
-        bottom: TabBar(
-          labelColor: tabColor,
-          unselectedLabelColor: greyColor,
-          indicatorColor: tabColor,
-          controller: _tabController,
-          tabs: const [
-            Tab(
-              child: Text(
-                "Chats",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
-            Tab(
-              child: Text(
-                "Status",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
+            floatingActionButton: switchFloatingActionButtonOnTabIndex(
+              currentTabIndex,
+              currentUser,
             ),
-            Tab(
-              child: Text(
-                "Calls",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                ChatPage(uid: widget.uid),
+                StatusPage(currentUser: currentUser),
+                CallHistoryPage(),
+              ],
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: switchFloatingActionButtonOnTabIndex(
-        currentTabIndex,
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [ChatPage(uid: widget.uid), StatusPage(), CallHistoryPage()],
-      ),
+          );
+        }
+        if (state is GetSingleUserFailure) {
+          return Scaffold(body: Center(child: Text(state.error)));
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 
-  switchFloatingActionButtonOnTabIndex(int index) {
+  switchFloatingActionButtonOnTabIndex(int index, UserEntity currentUser) {
     switch (index) {
       case 0:
         return FloatingActionButton(
