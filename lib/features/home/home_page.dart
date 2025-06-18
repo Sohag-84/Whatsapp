@@ -1,14 +1,28 @@
+// ignore_for_file: avoid_print
+
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:whatsapp/core/const/page_const.dart';
 import 'package:whatsapp/core/global/widgets/loader.dart';
+import 'package:whatsapp/core/global/widgets/show_image_and_video_widget.dart';
 import 'package:whatsapp/core/theme/style.dart';
 import 'package:whatsapp/features/call/presentation/pages/call_history_page.dart';
 import 'package:whatsapp/features/chat/presentation/pages/chat_page.dart';
+import 'package:whatsapp/features/status/domain/enitties/status_entity.dart';
+import 'package:whatsapp/features/status/domain/enitties/status_image_entity.dart';
+import 'package:whatsapp/features/status/domain/usecases/get_my_status_future_usecase.dart';
+import 'package:whatsapp/features/status/presentation/cubit/status/status_cubit.dart';
 import 'package:whatsapp/features/status/presentation/pages/status_page.dart';
 import 'package:whatsapp/features/user/domain/entities/user_entity.dart';
 import 'package:whatsapp/features/user/presentation/cubit/get_single_user/get_single_user_cubit.dart';
 import 'package:whatsapp/features/user/presentation/cubit/user/user_cubit.dart';
+import 'package:path/path.dart' as path;
+import 'package:whatsapp/main_injection_container.dart' as di;
+import 'package:whatsapp/storage/storage_provider.dart';
 
 class HomePage extends StatefulWidget {
   final String uid;
@@ -23,6 +37,53 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController? _tabController;
   int currentTabIndex = 0;
+
+  List<StatusImageEntity> stories = [];
+
+  List<File>? _selectedMedia;
+  List<String>? _mediaTypes;
+
+  Future<void> selectMedia() async {
+    setState(() {
+      _selectedMedia = null;
+      _mediaTypes = null;
+    });
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.media,
+        allowMultiple: true,
+      );
+      if (result != null) {
+        _selectedMedia = result.files.map((file) => File(file.path!)).toList();
+
+        // Initialize the media types list
+        _mediaTypes = List<String>.filled(_selectedMedia!.length, '');
+
+        // Determine the type of each selected file
+        for (int i = 0; i < _selectedMedia!.length; i++) {
+          String extension =
+              path.extension(_selectedMedia![i].path).toLowerCase();
+          if (extension == '.jpg' ||
+              extension == '.jpeg' ||
+              extension == '.png') {
+            _mediaTypes![i] = 'image';
+          } else if (extension == '.mp4' ||
+              extension == '.mov' ||
+              extension == '.avi') {
+            _mediaTypes![i] = 'video';
+          }
+        }
+
+        setState(() {});
+        print("mediaTypes = $_mediaTypes");
+      } else {
+        print("No file is selected.");
+      }
+    } catch (e) {
+      print("Error while picking file: $e");
+    }
+  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -202,7 +263,27 @@ class _HomePageState extends State<HomePage>
       case 1:
         return FloatingActionButton(
           backgroundColor: tabColor,
-          onPressed: () {},
+          onPressed: () {
+            selectMedia().then((value) {
+              if (_selectedMedia != null && _selectedMedia!.isNotEmpty) {
+                showModalBottomSheet(
+                  isScrollControlled: true,
+                  isDismissible: false,
+                  enableDrag: false,
+                  context: context,
+                  builder: (context) {
+                    return ShowMultiImageAndVideoPickedWidget(
+                      selectedFiles: _selectedMedia!,
+                      onTap: () {
+                        _uploadImageStatus(currentUser);
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                );
+              }
+            });
+          },
           child: const Icon(Icons.camera_alt, color: Colors.white),
         );
 
@@ -222,5 +303,64 @@ class _HomePageState extends State<HomePage>
           child: const Icon(Icons.message, color: Colors.white),
         );
     }
+  }
+
+  _uploadImageStatus(UserEntity currentUser) {
+    StorageProviderRemoteDataSource.uploadStatuses(
+      files: _selectedMedia!,
+      onComplete: (onCompleteStatusUpload) {},
+    ).then((statusImageUrls) {
+      for (var i = 0; i < statusImageUrls.length; i++) {
+        stories.add(
+          StatusImageEntity(
+            url: statusImageUrls[i],
+            type: _mediaTypes![i],
+            viewers: const [],
+          ),
+        );
+      }
+
+      di.sl<GetMyStatusFutureUsecase>().call(uid: widget.uid).then((myStatus) {
+        if (myStatus.isNotEmpty) {
+          BlocProvider.of<StatusCubit>(context)
+              .updateOnlyImageStatus(
+                status: StatusEntity(
+                  statusId: myStatus.first.statusId,
+                  stories: stories,
+                ),
+              )
+              .then((value) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HomePage(uid: widget.uid, index: 1),
+                  ),
+                );
+              });
+        } else {
+          BlocProvider.of<StatusCubit>(context)
+              .createStatus(
+                status: StatusEntity(
+                  caption: "",
+                  createdAt: Timestamp.now(),
+                  stories: stories,
+                  username: currentUser.username,
+                  uid: currentUser.uid,
+                  profileUrl: currentUser.profileUrl,
+                  imageUrl: statusImageUrls[0],
+                  phoneNumber: currentUser.phoneNumber,
+                ),
+              )
+              .then((value) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => HomePage(uid: widget.uid, index: 1),
+                  ),
+                );
+              });
+        }
+      });
+    });
   }
 }
